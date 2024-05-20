@@ -199,12 +199,21 @@ conv_handler_confirm_email = ConversationHandler(
     fallbacks=[]
 )
 
-def verify_password (update: Update, context):
-    user_input = update.message.text # Получаем текст, содержащий(или нет) password
-    if re.match(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,}$', user_input):
-        update.message.reply_text('Пароль сложный')
-    else:
-        update.message.reply_text('Пароль простой')
+def verify_password(update: Update, context):
+    user_input = update.message.text
+
+    regex = [
+        re.compile(r'\S{8,}'),
+        re.compile(r'[A-Z]'),
+        re.compile(r'[a-z]'),
+        re.compile(r'\d'),
+        re.compile(r'[\!\@\#\$\%\^\&\*\(\)\.]')
+    ]
+    for i in regex:
+        if not i.search(user_input):
+            update.message.reply_text('Пароль простой')
+            return ConversationHandler.END
+    update.message.reply_text('Пароль сложный')
     return ConversationHandler.END
 
 def echo(update: Update, context):
